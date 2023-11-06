@@ -15,7 +15,7 @@ CPU_INTERFACE_DIR = $(LIBRARY_DIR)/HAL/cpu/cpuInterface
 CPU_DIR = $(LIBRARY_DIR)/HAL/cpu/RV12
 
 COMMON_DIR = $(LIBRARY_DIR)/Common
-FREERTOS_DIR = $(LIBRARY_DIR)/External/FreeRTOS-Kernel
+FREERTOS_DIR = $(LIBRARY_DIR)/External/FreeRTOS
 
 LINKER = $(CPU_DIR)/rv-linker.ld
 
