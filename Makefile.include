@@ -1,0 +1,56 @@
+SRC_DIR = ./src
+
+CROSS_COMPILE 	= riscv64-unknown-elf-
+
+RISCV_MODEL = -march=rv32imc -mabi=ilp32 
+#_zicsr_zifencei 
+RISCV_CODE_MODEL = -mcmodel=medany
+
+OPTIMIZATIONS = -O0
+DEBUG_INFORMATION = -Wa,-adhln="$@.lst" -g3
+
+APPLICATION_DIR = $(SRC_DIR)
+LIBRARY_DIR = $(SRC_DIR)/Library
+CPU_INTERFACE_DIR = $(LIBRARY_DIR)/HAL/cpu/cpuInterface
+CPU_DIR = $(LIBRARY_DIR)/HAL/cpu/RV12
+
+COMMON_DIR = $(LIBRARY_DIR)/Common
+FREERTOS_DIR = $(LIBRARY_DIR)/External/FreeRTOS-Kernel
+
+LINKER = $(CPU_DIR)/rv-linker.ld
+
+INC =   $(CPU_INTERFACE_DIR)/                           \
+        $(CPU_DIR)/cpu/                                 \
+        $(CPU_DIR)/GPIO/                                \
+        $(CPU_DIR)/Timer/                               \
+        $(CPU_DIR)/FreeRTOS/                            \
+        $(COMMON_DIR)/                                  \
+        $(COMMON_DIR)/observer/                         \
+        $(FREERTOS_DIR)/include/                        \
+        $(FREERTOS_DIR)/portable/GCC/RISC-V/            \
+        $(FREERTOS_CPP_DIR)/include/                    \
+        $(APPLICATION_DIR)/
+
+SRC =   $(CPU_DIR)/startup.c                            \
+        $(CPU_DIR)/GPIO/HAL_GPIO.c                      \
+        $(CPU_DIR)/cpu/Interrupt.c                      \
+        $(CPU_DIR)/Timer/HAL_Timer.c                    \
+        $(CPU_DIR)/FreeRTOS/RV12_FreeRTOS.c             \
+        $(FREERTOS_DIR)/portable/GCC/RISC-V/port.c      \
+        $(FREERTOS_DIR)/portable/GCC/RISC-V/portASM.S   \
+        $(FREERTOS_DIR)/portable/MemMang/heap_4.c       \
+        $(FREERTOS_DIR)/list.c                          \
+        $(FREERTOS_DIR)/queue.c                         \
+        $(FREERTOS_DIR)/stream_buffer.c                 \
+        $(FREERTOS_DIR)/tasks.c                         \
+        $(FREERTOS_DIR)/timers.c                        \
+        $(APPLICATION_DIR)/main.c                       \
+        $(APPLICATION_DIR)/blinky.c
+
+INC_PARAMS = $(addprefix -I,$(INC))
+
+CFLAGS = $(RISCV_MODEL) $(RISCV_CODE_MODEL) $(INC_PARAMS) $(OPTIMIZATIONS) -fmessage-length=0 -ffunction-sections $(DEBUG_INFORMATION)
+CPLUSPLUSFLAGS = $(CFLAGS) -fno-exceptions -fno-rtti -fno-use-cxa-atexit -DCPP_FREERTOS_NO_CPP_STRINGS -DCPP_FREERTOS_NO_EXCEPTIONS
+LDFLAGS = $(RISCV_MODEL) $(INC_PARAMS) -nostartfiles --specs=nosys.specs -Xlinker --gc-sections 
+        
+        
